@@ -1,0 +1,176 @@
+
+https://dergipark.org.tr/tr/download/article-file/4693836
+
+
+kesinti
+nikâh randevusu
+nöbetçi eczane
+şehir rehberi
+su/elektrik kesintileri
+kazı çalışmaları
+haberler
+acil durum
+sokak hayvanları
+. “Gebze Asistan”
+
+“Bu hafta çocuklar için hangi etkinlikler var?”
+
+“Emlak vergimi nasıl öderim?”
+
+“Gebze'de yüzme kursu nerede?”
+
+“Benim sokağımda çalışma var mı?”
+
+uygulamanın kendisi cevaplasın ve ilgili ekrana götürsün.
+Mahallemde Ne Var?”
+
+Kullanıcı konumunu seçsin ve:
+
+📍 Mustafapaşa Mahallesi
+
+🚧 Yol çalışması
+🗑️ Çöp toplama programı
+🎉 Etkinlik
+💧 Su kesintisi
+🚌 Ulaşım değişikliği
+🌳 Park çalışması
+🏗️ Belediye projesi
+
+Söz Sende
+
+Vatandaşların anketlere katılması ve proje önerilerini iletmesi/oylamaya sunması.
+
+Akıllı Otopark
+
+Konuma göre otoparkları sıralama + doluluk + yol tarifi.
+
+pazar yerleri
+
+Harita katmanları
+
+Kullanıcı farklı şehir verilerini harita üzerinde açabiliyor:
+
+1/1000 imar
+1/25000 imar
+adres verileri
+afet toplanma alanları
+emniyet bölgeleri
+polis merkezleri
+jandarma alanları
+
+vb.
+
+Gebze için:
+
+“Gebze Haritası”
+
+tek başına çok güçlü bir proje modülü olur.
+
+kent lokantaları
+
+parklar
+
+
+kütüphaneler
+
+“Çek & Gönder”
+
+Fotoğraf çek → belediyeye gönder → takip et.
+
+Bu oldukça temel görünse de vatandaş deneyiminin en değerli parçalarından.
+
+hava durumu
+
+
+🤖 Gebze AI Concierge
+
+Ana ekrana kocaman:
+
+“Gebze’de ne yapmak istiyorsun?”
+
+Yaz:
+
+“Oğlumu hafta sonu yüzmeye götürmek istiyorum.”
+
+AI:
+
+🏊 Yakınınızdaki 3 seçenek
+
+1. Gebze Belediyesi Spor Tesisi
+   Cumartesi 14:00
+   4 kontenjan
+
+[ KAYIT OL ]
+
+2. ...
+
+Ya da:
+
+“Arabamı Gebze merkezde nereye bırakabilirim?”
+
+AI:
+
+“Şu an size en yakın belediye otoparkı 850 m uzaklıkta.”
+
+
+
+
+Gebze Söz Sende 2.0
+
+İzmir'in “Söz Sende” modelini daha ileri götür:
+
+Vatandaş:
+
+“Bu boş alana çocuk parkı yapılsın.”
+
+Fotoğraf → konum → öneri.
+
+
+
+🔔 “Akıllı Bildirim Motoru”
+
+Bunu normal push notification gibi yapma.
+
+Kullanıcı seçer:
+
+☑️ Mahallem
+☑️ Ulaşım
+☑️ Hava
+☑️ Su
+☑️ Etkinlik
+☑️ Belediye projeleri
+☑️ Eğitim
+☑️ Acil durum
+
+Sonra uygulama:
+
+“Bugün senin mahallende yol çalışması var.”
+
+“Favori otobüsünün güzergâhı değişti.”
+
+“Kayıt olduğun kurs 2 saat sonra.”
+
+“Yakınındaki belediye tesisinde yeni etkinlik açıldı.”
+
+gibi kişisel bildirim gönderebilir.
+
+
+13. 🐾 Gebze Pati
+
+Tek ekranda:
+
+kayıp hayvan
+bulunan hayvan
+sahiplendirme
+veteriner
+mama
+sokak hayvanı bildirimi
+
+ve mümkünse:
+
+📍 “Bu hayvan 450 m ileride görüldü.”
+
+gibi konum tabanlı yapı.
+
+
+

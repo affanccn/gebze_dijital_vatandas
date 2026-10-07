@@ -1,0 +1,4 @@
+enum DataMode {
+  mock,
+  remote,
+}
