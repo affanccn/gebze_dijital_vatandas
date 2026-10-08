@@ -22,3 +22,14 @@ class LocaleNotifier extends Notifier<Locale> {
 }
 
 final localeProvider = NotifierProvider<LocaleNotifier, Locale>(() => LocaleNotifier());
+
+class TextSizeNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() {
+    state = !state;
+  }
+}
+
+final textSizeProvider = NotifierProvider<TextSizeNotifier, bool>(() => TextSizeNotifier());

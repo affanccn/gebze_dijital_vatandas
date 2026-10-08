@@ -187,13 +187,7 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
-          if (url != null && url.isNotEmpty) {
-            LauncherUtils.openUrl(url);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('İçerik detayı yükleniyor...')),
-            );
-          }
+          _showDetailSheet(context, category, title, description, date, imageUrl, url);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,6 +239,104 @@ class _ContentScreenState extends ConsumerState<ContentScreen> with SingleTicker
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  void _showDetailSheet(BuildContext context, String category, String title, String description, DateTime date, String? imageUrl, String? url) {
+    String formattedDate = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.65,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, controller) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: ListView(
+            controller: controller,
+            children: [
+              if (imageUrl != null && imageUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  child: Image.network(imageUrl, height: 250, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 250, color: Colors.grey.shade300)),
+                )
+              else
+                Container(
+                  height: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Icon(category == 'Haber' ? Icons.newspaper : Icons.event, size: 80, color: Colors.grey),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Icon(category == 'Haber' ? Icons.calendar_today : Icons.calendar_month, color: const Color(0xFFFF7A00)),
+                        const SizedBox(width: 8),
+                        Text(formattedDate, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Text('Detaylar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    if (category == 'Haber' && url != null && url.isNotEmpty)
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final detailAsync = ref.watch(newsDetailProvider(url));
+                          return detailAsync.when(
+                            data: (text) {
+                              if (text.isEmpty) {
+                                return Text(
+                                  'Bu haber için detay metni bulunamadı.',
+                                  style: TextStyle(fontSize: 15, color: Theme.of(context).textTheme.bodyMedium?.color, height: 1.5),
+                                );
+                              }
+                              return Text(
+                                text,
+                                style: TextStyle(fontSize: 15, color: Theme.of(context).textTheme.bodyMedium?.color, height: 1.5),
+                              );
+                            },
+                            loading: () => const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator())),
+                            error: (err, stack) => const Text('Detaylar yüklenemedi.'),
+                          );
+                        },
+                      )
+                    else
+                      Text(
+                        category == 'Haber' 
+                            ? 'Bu haberin detayları bulunmamaktadır.'
+                            : 'Bu harika etkinlikte bize katılın! Aileniz ve arkadaşlarınızla birlikte keyifli vakit geçirmek için sizi bekliyoruz.',
+                        style: TextStyle(fontSize: 15, color: Theme.of(context).textTheme.bodyMedium?.color, height: 1.5),
+                      ),
+                    const SizedBox(height: 32),
+                    if (url != null && url.isNotEmpty)
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          LauncherUtils.openUrl(url);
+                        },
+                        child: const Text('Web\'de Oku'),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

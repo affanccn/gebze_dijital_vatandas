@@ -20,6 +20,7 @@ import 'package:gebze_dijital_vatandas/features/pharmacies/presentation/pharmaci
 import 'package:gebze_dijital_vatandas/features/splash/presentation/splash_screen.dart';
 import 'package:gebze_dijital_vatandas/features/auth/presentation/login_screen.dart';
 import 'package:gebze_dijital_vatandas/features/auth/application/auth_service.dart';
+import 'package:gebze_dijital_vatandas/features/chatbot/presentation/chat_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -54,7 +55,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/login',
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/chatbot',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ChatbotScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

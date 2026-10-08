@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gebze_dijital_vatandas/core/network/scraper_service.dart';
+import '../../../core/repositories/firestore_repository.dart';
 import '../../../core/utils/launcher_utils.dart';
 
-final pharmacyListProvider = FutureProvider.autoDispose<List<Map<String, String>>>((ref) async {
-  final scraper = ScraperService();
-  return scraper.getPharmacies();
+final pharmacyListProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  final repository = ref.watch(firestoreRepositoryProvider);
+  return repository.watchPharmacies().map((snapshot) {
+    if (snapshot == null || snapshot['pharmacies'] == null) return [];
+    return List<Map<String, dynamic>>.from(snapshot['pharmacies']);
+  });
 });
 
 class PharmaciesScreen extends ConsumerWidget {

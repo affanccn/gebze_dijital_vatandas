@@ -1,120 +1,586 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../auth/application/auth_service.dart';
-import '../../../app/config/settings_provider.dart';
+import 'package:gebze_dijital_vatandas/features/auth/application/auth_service.dart';
+import 'package:gebze_dijital_vatandas/app/config/settings_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isEn = ref.watch(localeProvider).languageCode == 'en';
-    
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(isEn ? 'Profile' : 'Profil', style: const TextStyle(fontWeight: FontWeight.bold)),
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: const Color(0xFF0D253F),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 32, top: 16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0D253F),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _showMyInfoBottomSheet() {
+    final isEn = ref.read(localeProvider).languageCode == 'en';
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
+              const SizedBox(height: 24),
+              Text(
+                isEn ? 'My Information' : 'Bilgilerim',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 24),
+              _buildTextField(isEn ? 'Full Name' : 'Ad Soyad', 'Ahmet Yılmaz', Icons.person),
+              const SizedBox(height: 16),
+              _buildTextField(isEn ? 'Email' : 'E-posta', 'ahmet.yilmaz@email.com', Icons.email),
+              const SizedBox(height: 16),
+              _buildTextField(isEn ? 'Phone' : 'Telefon', '+90 555 123 4567', Icons.phone),
+              const SizedBox(height: 16),
+              _buildTextField(isEn ? 'Address' : 'Adres', 'Mustafapaşa Mahallesi, Gebze', Icons.location_on),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0D253F),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(isEn ? 'Save Changes' : 'Değişiklikleri Kaydet', style: const TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationPrefs() {
+    final isEn = ref.read(localeProvider).languageCode == 'en';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          bool sms = true;
+          bool email = false;
+          bool push = true;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: const Text('AH', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    isEn ? 'Notification Preferences' : 'Bildirim Tercihleri',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 24),
+                  SwitchListTile(
+                    title: Text(isEn ? 'Push Notifications' : 'Anlık Bildirimler (Push)'),
+                    value: push,
+                    onChanged: (val) => setState(() => push = val),
+                    activeTrackColor: const Color(0xFF0D253F),
+                  ),
+                  SwitchListTile(
+                    title: Text(isEn ? 'SMS Notifications' : 'SMS Bildirimleri'),
+                    value: sms,
+                    onChanged: (val) => setState(() => sms = val),
+                    activeTrackColor: const Color(0xFF0D253F),
+                  ),
+                  SwitchListTile(
+                    title: Text(isEn ? 'Email Notifications' : 'E-posta Bildirimleri'),
+                    value: email,
+                    onChanged: (val) => setState(() => email = val),
+                    activeTrackColor: const Color(0xFF0D253F),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D253F),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(isEn ? 'Save' : 'Kaydet', style: const TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Ahmet Yılmaz', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 4),
-                  const Text('Mustafapaşa Mahallesi', style: TextStyle(fontSize: 14, color: Colors.white70)),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  _buildListTile(context, Icons.person, isEn ? 'My Information' : 'Bilgilerim'),
-                  _buildListTile(context, Icons.map, isEn ? 'Neighborhood Selection' : 'Mahalle Seçimi'),
-                  _buildListTile(context, Icons.notifications, isEn ? 'Notification Preferences' : 'Bildirim Tercihleri'),
-                  const Divider(height: 32),
-                  _buildListTile(context, Icons.history, isEn ? 'My Requests' : 'Taleplerim'),
-                  _buildListTile(context, Icons.how_to_vote, isEn ? 'Suggestions & Supported' : 'Önerilerim ve Desteklediklerim'),
-                  _buildListTile(context, Icons.bookmark, isEn ? 'Saved' : 'Kaydettiklerim'),
-                  const Divider(height: 32),
-                  _buildListTile(context, Icons.language, isEn ? 'Language (English)' : 'Dil Seçimi (Türkçe)', onTap: () {
-                    ref.read(localeProvider.notifier).toggle();
-                  }),
-                  _buildListTile(context, Icons.dark_mode, isEn ? 'Theme (${ref.watch(themeModeProvider) == ThemeMode.dark ? 'Dark' : 'Light'})' : 'Tema (${ref.watch(themeModeProvider) == ThemeMode.dark ? 'Koyu' : 'Açık'})', onTap: () {
-                    ref.read(themeModeProvider.notifier).toggle();
-                  }),
-                  _buildListTile(context, Icons.text_fields, isEn ? 'Large Text' : 'Büyük Yazı Tipi'),
-                  const Divider(height: 32),
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: Text(isEn ? 'Logout' : 'Çıkış Yap', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      ref.read(authProvider.notifier).logout();
-                      context.go('/login');
-                    },
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          );
+        }
+      ),
+    );
+  }
+
+  void _showMyRequests() {
+    final isEn = ref.read(localeProvider).languageCode == 'en';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.delete_forever, color: Colors.grey),
-                    title: Text(isEn ? 'Delete Account' : 'Hesabı Sil', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isEn ? 'Account deletion requires verification.' : 'Hesap silme işlemi doğrulama gerektirir.'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
+              const SizedBox(height: 24),
+              Text(
+                isEn ? 'My Requests' : 'Taleplerim',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _buildRequestItem('Sokak Lambası Yanmıyor', '12 Ekim 2026', 'Çözüldü', Colors.green),
+                    _buildRequestItem('Çukur Var', '10 Ekim 2026', 'İşlemde', Colors.orange),
+                    _buildRequestItem('Park Bakımı Talebi', '5 Ekim 2026', 'Beklemede', Colors.grey),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSaved() {
+    final isEn = ref.read(localeProvider).languageCode == 'en';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.bookmark_border, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              isEn ? 'No Saved Items' : 'Henüz kaydedilmiş içerik yok',
+              style: const TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildListTile(BuildContext context, IconData icon, String title, {VoidCallback? onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: onTap ?? () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title ekranı yakında eklenecek.'),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
+  void _confirmDelete() {
+    final isEn = ref.read(localeProvider).languageCode == 'en';
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isEn ? 'Delete Account?' : 'Hesabı Sil?'),
+        content: Text(isEn ? 'Are you sure you want to delete your account? This action cannot be undone.' : 'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(isEn ? 'Cancel' : 'İptal', style: const TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(isEn ? 'Delete' : 'Sil', style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEn = ref.watch(localeProvider).languageCode == 'en';
+    final isLargeText = ref.watch(textSizeProvider);
+    final baseFontSize = isLargeText ? 18.0 : 14.0;
+    
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 280.0,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: const Color(0xFF0F172A),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/images/gebze_background.jpg',
+                    fit: BoxFit.cover,
+                    alignment: Alignment.centerRight,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          const Color(0xFF0F172A).withValues(alpha: 0.5),
+                          const Color(0xFF1E293B).withValues(alpha: 0.8),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            )
+                          ]
+                        ),
+                        child: const CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Color(0xFF3B82F6),
+                          child: Text('AH', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Ahmet Yılmaz', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text('Mustafapaşa Mahallesi', style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Transform.translate(
+              offset: const Offset(0, -20),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionHeader(isEn ? 'Account' : 'Hesap', baseFontSize),
+                      _buildAnimatedCard(
+                        index: 0,
+                        child: _buildGroupContainer([
+                          _buildListTile(Icons.person_outline, isEn ? 'My Information' : 'Bilgilerim', baseFontSize, onTap: _showMyInfoBottomSheet),
+                          _buildListTile(Icons.map_outlined, isEn ? 'Neighborhood Selection' : 'Mahalle Seçimi', baseFontSize, onTap: () => context.push('/services/neighborhood')),
+                          _buildListTile(Icons.notifications_none, isEn ? 'Notification Preferences' : 'Bildirim Tercihleri', baseFontSize, onTap: _showNotificationPrefs, isLast: true),
+                        ]),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      _buildSectionHeader(isEn ? 'Activities' : 'Aktiviteler', baseFontSize),
+                      _buildAnimatedCard(
+                        index: 1,
+                        child: _buildGroupContainer([
+                          _buildListTile(Icons.history, isEn ? 'My Requests' : 'Taleplerim', baseFontSize, onTap: _showMyRequests),
+                          _buildListTile(Icons.how_to_vote_outlined, isEn ? 'Suggestions & Supported' : 'Önerilerim ve Desteklediklerim', baseFontSize, onTap: () => context.push('/services/participation')),
+                          _buildListTile(Icons.bookmark_border, isEn ? 'Saved' : 'Kaydettiklerim', baseFontSize, onTap: _showSaved, isLast: true),
+                        ]),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      _buildSectionHeader(isEn ? 'Settings' : 'Ayarlar', baseFontSize),
+                      _buildAnimatedCard(
+                        index: 2,
+                        child: _buildGroupContainer([
+                          _buildListTile(Icons.language, isEn ? 'Language (English)' : 'Dil Seçimi (Türkçe)', baseFontSize, onTap: () {
+                            ref.read(localeProvider.notifier).toggle();
+                          }),
+                          _buildListTile(Icons.dark_mode_outlined, isEn ? 'Theme (${ref.watch(themeModeProvider) == ThemeMode.dark ? 'Dark' : 'Light'})' : 'Tema (${ref.watch(themeModeProvider) == ThemeMode.dark ? 'Koyu' : 'Açık'})', baseFontSize, onTap: () {
+                            ref.read(themeModeProvider.notifier).toggle();
+                          }),
+                          _buildListTile(Icons.format_size, isEn ? 'Large Text' : 'Büyük Yazı Tipi', baseFontSize, trailing: Switch(
+                            value: isLargeText,
+                            onChanged: (val) => ref.read(textSizeProvider.notifier).toggle(),
+                            activeTrackColor: const Color(0xFF0D253F),
+                          ), isLast: true),
+                        ]),
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      _buildAnimatedCard(
+                        index: 3,
+                        child: _buildGroupContainer([
+                          _buildListTile(Icons.logout, isEn ? 'Logout' : 'Çıkış Yap', baseFontSize, color: Colors.red, onTap: () {
+                            ref.read(authProvider.notifier).logout();
+                            context.go('/login');
+                          }),
+                          _buildListTile(Icons.delete_forever, isEn ? 'Delete Account' : 'Hesabı Sil', baseFontSize, color: Colors.grey.shade600, onTap: _confirmDelete, isLast: true),
+                        ]),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, double baseFontSize) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: baseFontSize + 2,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF64748B),
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedCard({required int index, required Widget child}) {
+    final Animation<double> animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(index * 0.15, 1.0, curve: Curves.easeOutQuart),
+      ),
+    );
+
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, 30 * (1 - animation.value)),
+          child: Opacity(
+            opacity: animation.value,
+            child: child,
           ),
         );
       },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: child,
+    );
+  }
+
+  Widget _buildGroupContainer(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildListTile(IconData icon, String title, double fontSize, {VoidCallback? onTap, Color? color, Widget? trailing, bool isLast = false}) {
+    final effectiveColor = color ?? const Color(0xFF1E293B);
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: effectiveColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: effectiveColor, size: 22),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w600,
+                        color: effectiveColor,
+                      ),
+                    ),
+                  ),
+                  if (trailing != null) trailing
+                  else Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (!isLast) Divider(height: 1, indent: 64, color: Colors.grey.shade100),
+      ],
+    );
+  }
+
+  Widget _buildTextField(String label, String initialValue, IconData icon) {
+    return TextFormField(
+      initialValue: initialValue,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: const Color(0xFF0D253F)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF0D253F), width: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequestItem(String title, String date, String status, Color statusColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 4),
+              Text(date, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              status,
+              style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import '../domain/news_model.dart';
 abstract class NewsRepository {
   Future<List<NewsModel>> getAnnouncements();
   Future<List<NewsModel>> getNews();
+  Future<String> getNewsDetail(String url);
 }
 
 // Live implementation using ScraperService
@@ -67,6 +68,11 @@ class LiveNewsRepository implements NewsRepository {
       );
     }).toList();
   }
+
+  @override
+  Future<String> getNewsDetail(String url) async {
+    return await _scraper.getNewsDetail(url);
+  }
 }
 
 // 1. Provide the Repository instance
@@ -83,4 +89,9 @@ final announcementsProvider = FutureProvider<List<NewsModel>>((ref) {
 final newsListProvider = FutureProvider<List<NewsModel>>((ref) {
   final repository = ref.watch(newsRepositoryProvider);
   return repository.getNews();
+});
+
+final newsDetailProvider = FutureProvider.family<String, String>((ref, url) async {
+  final repository = ref.watch(newsRepositoryProvider);
+  return repository.getNewsDetail(url);
 });

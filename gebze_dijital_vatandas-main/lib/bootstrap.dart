@@ -6,8 +6,15 @@ import 'package:gebze_dijital_vatandas/app/config/app_config.dart';
 import 'package:gebze_dijital_vatandas/app/config/config_providers.dart';
 import 'package:gebze_dijital_vatandas/core/logging/app_logger.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:gebze_dijital_vatandas/firebase_options.dart';
+
 Future<void> bootstrap(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   const globalLogger = DebugPrintLogger();
 

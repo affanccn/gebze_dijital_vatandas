@@ -1,11 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/news_repository.dart';
-import '../../disruptions/data/disruptions_repository.dart';
 import '../../weather/data/weather_repository.dart';
-import '../data/home_repository.dart';
 import '../../../app/config/settings_provider.dart';
 import '../../../core/utils/launcher_utils.dart';
 
@@ -15,115 +15,429 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isEn = ref.watch(localeProvider).languageCode == 'en';
-    
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context, isEn),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildQuickAccess(context, isEn),
-                  const SizedBox(height: 24),
-                  _buildAnnouncements(context, ref, isEn),
-                  const SizedBox(height: 24),
-                  _buildDisruptionsAlerts(context, ref, isEn),
-                  const SizedBox(height: 24),
-                  _buildWeatherWidget(context, ref, isEn),
-                  const SizedBox(height: 24),
-                  _buildNewsSection(context, ref, isEn),
-                  const SizedBox(height: 24),
-                  _buildNearbyEvents(context, ref, isEn),
-                  const SizedBox(height: 24),
-                  _buildProjects(context, ref, isEn),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildAppBar(BuildContext context, bool isEn) {
-    return SliverAppBar(
-      expandedHeight: 120.0,
-      floating: true,
-      pinned: true,
-      elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/chatbot'),
+        backgroundColor: const Color(0xFF003B73),
+        child: const Icon(Icons.smart_toy_rounded, color: Colors.white),
+      ),
+      body: SingleChildScrollView(
+        child: Stack(
           children: [
-            Text(
-              isEn ? 'Hello, Ahmet 👋' : 'Merhaba, Ahmet 👋',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Colors.white70,
+            // Background Image spanning the top
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 380, // Increased to avoid overflow while maintaining landscape feel
+              child: Image.asset(
+                'assets/images/gebze_background.jpg',
+                fit: BoxFit.cover,
+                alignment: Alignment.centerRight,
+                errorBuilder: (_, __, ___) => Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF8BB5DC), Color(0xFF0F3A6A)],
+                    ),
+                  ),
+                ),
               ),
             ),
-            SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
+            // Main Content
+            Column(
               children: [
-                Icon(Icons.location_on, color: Colors.white, size: 14),
-                SizedBox(width: 4),
-                Text(
-                  'Mustafapaşa Mahallesi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                // Header Area (Transparent, over the image)
+                SizedBox(
+                  height: 340, // Increased to fix overflow issues
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 16.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Top Bar
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // The New Custom Logo
+                              Image.asset(
+                                'assets/images/gebze_logo.png',
+                                height: 60,
+                                fit: BoxFit.contain,
+                              ),
+
+                              // Notification Icon
+                              Stack(
+                                children: [
+                                  const Icon(
+                                    Icons.notifications_none_rounded,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                  Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.redAccent,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Greeting
+                          Text(
+                            isEn ? 'Hello, Ahmet 👋' : 'Merhaba, Ahmet 👋',
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF003B73),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Konum seçimi açılıyor...'),
+                                  ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0,
+                                  horizontal: 2.0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.location_on,
+                                      color: Color(0xFF003B73),
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Mustafapaşa Mahallesi >',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF003B73),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          // Slogan
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                right: 16.0,
+                                bottom: 20.0,
+                              ),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                    bottom: -8,
+                                    right: -10,
+                                    child: Transform.rotate(
+                                      angle: -0.1,
+                                      child: Container(
+                                        width: 140,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF59E0B),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Transform.rotate(
+                                    angle: -0.05,
+                                    child: Text(
+                                      'Daha güzel\nbir Gebze için',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontFamily: 'Cursive',
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.6,
+                                            ),
+                                            blurRadius: 6,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                ),
+                // The White Body and Weather Widget
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // White rounded body
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(36),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 60.0, bottom: 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildQuickAccess(context, isEn),
+                            const SizedBox(height: 32),
+                            _buildAnnouncements(context, ref, isEn),
+                            const SizedBox(height: 32),
+                            _buildProjects(context, ref, isEn),
+                            const SizedBox(height: 32),
+                            _buildNewsSection(context, ref, isEn),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Weather Glassmorphism Widget Overlapping the body
+                    Positioned(
+                      top: -30,
+                      left: 20,
+                      right: 20,
+                      child: _buildWeatherWidget(context, ref, isEn),
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0D253F), Color(0xFF00B4D8)],
+      ),
+    );
+  }
+
+  Widget _buildWeatherWidget(BuildContext context, WidgetRef ref, bool isEn) {
+    final weatherAsync = ref.watch(currentWeatherProvider);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Detaylı hava durumu açılıyor...')),
+          );
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF4A90E2)
+                        .withValues(alpha: 0.4), // Sky light blue translucent
+                    const Color(0xFF003B73)
+                        .withValues(alpha: 0.5), // Deep sky blue translucent
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: weatherAsync.when(
+                data: (weather) {
+                  return Row(
+                    children: [
+                      const Icon(Icons.cloud, color: Colors.white, size: 36),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${weather.temperature.toInt()}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.0,
+                                ),
+                              ),
+                              const Text(
+                                '°',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            weather.condition,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 32,
+                        width: 1,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.location_on,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Gebze',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Güncel Hava Durumu',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 9,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
+                error: (_, __) => const Center(
+                  child: Text('Hata', style: TextStyle(color: Colors.white)),
+                ),
+              ),
             ),
           ),
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colors.white),
-          onPressed: () => context.push('/services/content'),
-        ),
-        const SizedBox(width: 8),
-      ],
     );
   }
 
   Widget _buildQuickAccess(BuildContext context, bool isEn) {
     final items = [
-      {'icon': Icons.report_problem, 'label': isEn ? 'Report' : 'Çek & Gönder', 'color': Colors.redAccent, 'route': '/report'},
-      {'icon': Icons.local_parking, 'label': isEn ? 'Parking' : 'Otopark', 'color': Colors.blueAccent, 'route': '/services/parking'},
-      {'icon': Icons.pets, 'label': isEn ? 'Animals' : 'Gebze Pati', 'color': Colors.orangeAccent, 'route': '/services/animals'},
-      {'icon': Icons.campaign, 'label': isEn ? 'Participate' : 'Söz Sende', 'color': Colors.purpleAccent, 'route': '/services/participation'},
+      {
+        'icon': Icons.warning_rounded,
+        'label': isEn ? 'Report' : 'Çek & Gönder',
+        'color': Colors.red,
+        'route': '/report',
+      },
+      {
+        'icon': Icons.local_parking_rounded,
+        'label': isEn ? 'Parking' : 'Otopark',
+        'color': Colors.blue,
+        'route': '/services/parking',
+      },
+      {
+        'icon': Icons.pets_rounded,
+        'label': isEn ? 'Animals' : 'Gebze Pati',
+        'color': Colors.orange,
+        'route': '/services/animals',
+      },
+      {
+        'icon': Icons.campaign_rounded,
+        'label': isEn ? 'Participate' : 'Söz Sende',
+        'color': Colors.purple,
+        'route': '/services/participation',
+      },
+      {
+        'icon': Icons.article_rounded,
+        'label': isEn ? 'Services' : 'Tüm Hizmetler',
+        'color': Colors.teal,
+        'route': '/services',
+      },
     ];
 
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (context, index) {
-          final item = items[index];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: items.map((item) {
+          final color = item['color'] as Color;
           return InkWell(
             onTap: () {
               if (item['route'] != null) {
@@ -138,214 +452,248 @@ class HomeScreen extends ConsumerWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: (item['color'] as Color).withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    color: item['color'] as Color,
-                    size: 28,
-                  ),
+                  child: Icon(item['icon'] as IconData, color: color, size: 28),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  item['label'] as String,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    item['label'] as String,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF334155),
+                      height: 1.2,
+                    ),
+                  ),
                 ),
               ],
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }
 
   Widget _buildAnnouncements(BuildContext context, WidgetRef ref, bool isEn) {
-    final announcementsAsync = ref.watch(announcementsProvider);
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(context, isEn ? 'Announcements' : 'Önemli Duyurular', isEn, () {
-            context.push('/services/content');
-          }),
-          const SizedBox(height: 12),
-          announcementsAsync.when(
-            data: (newsList) {
-              if (newsList.isEmpty) {
-                return const Text('Yeni duyuru bulunmuyor.');
-              }
-              final topNews = newsList.take(2).toList();
-              return Column(
-                children: topNews.map((news) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: news.isImportant ? Colors.red.shade100 : Colors.blue.shade100),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: news.isImportant ? Colors.red.shade50 : Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            news.isImportant ? Icons.warning_amber : Icons.info_outline, 
-                            color: news.isImportant ? Colors.red.shade600 : Colors.blue.shade600
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                news.title,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                news.description,
-                                style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )).toList(),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Hata: $err'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDisruptionsAlerts(BuildContext context, WidgetRef ref, bool isEn) {
-    final disruptionsAsync = ref.watch(activeDisruptionsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(context, isEn ? 'Disruptions' : 'Kesintiler ve Çalışmalar', isEn, () {
-            context.push('/services/disruptions');
-          }),
-          const SizedBox(height: 12),
-          disruptionsAsync.when(
-            data: (disruptions) {
-              if (disruptions.isEmpty) return const Text('Güncel kesinti bulunmuyor.');
-              return Row(
-                children: disruptions.take(2).map((d) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: _buildAlertCard(
-                        context: context,
-                        icon: d.icon,
-                        title: d.title,
-                        subtitle: d.subtitle,
-                        color: d.color,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Hata: $err'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlertCard({required BuildContext context, required IconData icon, required String title, required String subtitle, required Color color}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color.withValues(alpha: 0.8).withBlue(color.blue + 50))),
-          const SizedBox(height: 4),
-          Text(subtitle, style: TextStyle(fontSize: 11, color: Theme.of(context).textTheme.bodySmall?.color)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeatherWidget(BuildContext context, WidgetRef ref, bool isEn) {
-    final weatherAsync = ref.watch(currentWeatherProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade400, Colors.blue.shade700],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.blue.shade200, blurRadius: 10, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: weatherAsync.when(
-          data: (weather) {
-            IconData weatherIcon = Icons.cloud;
-            if (weather.iconType == 'sun') weatherIcon = Icons.wb_sunny;
-            if (weather.iconType == 'rain') weatherIcon = Icons.grain;
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(weather.condition, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                    const SizedBox(height: 4),
-                    Text(weather.location, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-                  ],
+          Row(
+            children: [
+              const Icon(
+                Icons.campaign_rounded,
+                color: Colors.orange,
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isEn ? 'Announcements' : 'Önemli Duyurular',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(weatherIcon, color: Colors.white, size: 40),
-                    const SizedBox(width: 12),
-                    Text('${weather.temperature.toInt()}°', style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
-                  ],
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () => context.push('/services/content'),
+                child: Text(
+                  isEn ? 'See All ->' : 'Tümünü Gör ->',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.grey.shade100),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-          error: (err, stack) => const Text('Hava durumu yüklenemedi', style: TextStyle(color: Colors.white)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildAnnouncementItem(
+                  'Emlak Vergisi 2. Taksit Ödemeleri',
+                  'Son ödeme tarihi 30 Kasım 2026. Gecikme zammı uygulanmaması için ödemenizi yapınız.',
+                  true,
+                ),
+                const Divider(height: 24, color: Color(0xFFF1F5F9)),
+                _buildAnnouncementItem(
+                  'Su Kesintisi Uyarısı - Mustafapaşa',
+                  'Altyapı çalışmaları nedeniyle yarın 14:00 - 18:00 saatleri arasında su verilemeyecektir.',
+                  true,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnnouncementItem(String title, String desc, bool isAlert) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.warning_rounded, color: Colors.red, size: 24),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                desc,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF64748B),
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+      ],
+    );
+  }
+
+  Widget _buildProjects(BuildContext context, WidgetRef ref, bool isEn) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        height: 210, // Increased height to prevent overflow
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          image: const DecorationImage(
+            image: NetworkImage(
+              'https://images.pexels.com/photos/373912/pexels-photo-373912.jpeg?auto=compress&cs=tinysrgb&w=800',
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                const Color(0xFF0F3A6A).withValues(alpha: 0.9),
+                const Color(0xFF0F3A6A).withValues(alpha: 0.6),
+                Colors.transparent,
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.settings, color: Colors.white, size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    'GEBZE BELEDİYESİ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Gebze\'miz İçin\nÇalışıyoruz',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Daha yaşanabilir, daha modern\nbir şehir hedefiyle...',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  height: 1.2,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text(
+                      'Detayları Gör',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -354,351 +702,155 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildNewsSection(BuildContext context, WidgetRef ref, bool isEn) {
     final newsAsync = ref.watch(newsListProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(context, isEn ? 'News' : 'Güncel Haberler', isEn, () {
-            context.push('/services/content');
-          }),
-          const SizedBox(height: 12),
-          newsAsync.when(
-            data: (newsList) {
-              if (newsList.isEmpty) return const Text('Haber bulunamadı.');
-              return SizedBox(
-                height: 200,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: newsList.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 16),
-                  itemBuilder: (context, index) {
-                    final news = newsList[index];
-                    return GestureDetector(
-                      onTap: () {
-                         if (news.description.isNotEmpty) {
-                            LauncherUtils.openUrl(news.description);
-                         }
-                      },
-                      child: Container(
-                        width: 240,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2)),
-                          ],
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 110,
-                            color: Colors.grey.shade300,
-                            width: double.infinity,
-                            child: news.imageUrl != null 
-                              ? Image.network(news.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.newspaper, color: Colors.white))
-                              : const Icon(Icons.newspaper, color: Colors.white, size: 40),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  news.title,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade600),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${news.date.day}.${news.date.month}.${news.date.year}',
-                                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Hata: $err'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNearbyEvents(BuildContext context, WidgetRef ref, bool isEn) {
-    final eventsAsync = ref.watch(nearbyEventsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(context, isEn ? 'Events' : 'Yakın Etkinlikler', isEn, () {
-            context.push('/services/content');
-          }),
-          const SizedBox(height: 12),
-          eventsAsync.when(
-            data: (events) {
-              if (events.isEmpty) return const Text('Yakınlarda etkinlik bulunamadı.');
-              return SizedBox(
-                height: 160,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: events.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 16),
-                  itemBuilder: (context, index) {
-                    final event = events[index];
-                    return GestureDetector(
-                      onTap: () {
-                        _showEventDetail(context, event, isEn);
-                      },
-                      child: Container(
-                        width: 240,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2)),
-                        ],
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 90,
-                            color: Colors.grey.shade300,
-                            width: double.infinity,
-                            child: event.imageUrl != null 
-                              ? Image.network(event.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.event, color: Colors.white))
-                              : const Icon(Icons.event, color: Colors.white, size: 40),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  event.title,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade600),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      event.timeString,
-                                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ), // Container
-                  ); // GestureDetector
-                },
-                ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Hata: $err'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProjects(BuildContext context, WidgetRef ref, bool isEn) {
-    final projectsAsync = ref.watch(activeProjectsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(context, isEn ? 'Projects' : 'Belediye Projeleri', isEn, () {
-            context.push('/services/content');
-          }),
-          const SizedBox(height: 12),
-          projectsAsync.when(
-            data: (projects) {
-              if (projects.isEmpty) return const Text('Aktif proje bulunmuyor.');
-              return Column(
-                children: projects.map((project) => Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00B4D8).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.park, color: Color(0xFF00B4D8), size: 40),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              project.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              project.description,
-                              style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )).toList(),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Hata: $err'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title, bool isEn, VoidCallback onSeeAll) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.5,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.newspaper_rounded,
+                color: Color(0xFF0F3A6A),
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isEn ? 'News' : 'Güncel Haberler',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () => context.push('/services/content'),
+                child: Text(
+                  isEn ? 'See All ->' : 'Tümünü Gör ->',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        InkWell(
-          onTap: onSeeAll,
-          child: Text(
-            isEn ? 'See All' : 'Tümünü Gör',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 220,
+          child: newsAsync.when(
+            data: (newsList) {
+              if (newsList.isEmpty)
+                return const Center(child: Text('Haber bulunamadı.'));
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: newsList.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  final news = newsList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (news.description.isNotEmpty) {
+                        LauncherUtils.openUrl(news.description);
+                      }
+                    },
+                    child: _buildNewsCard(
+                      news.title,
+                      '${news.date.day}.${news.date.month}.${news.date.year}',
+                      news.imageUrl ?? 'https://images.unsplash.com/photo-1596423735880-5ce3be9a296d?q=80&w=400',
+                    ),
+                  );
+                },
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => const Center(child: Text('Hata oluştu.')),
           ),
         ),
       ],
     );
   }
 
-  void _showEventDetail(BuildContext context, dynamic event, bool isEn) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.65,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (_, controller) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+  Widget _buildNewsCard(String title, String date, String imageUrl) {
+    return Container(
+      width: 240,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: ListView(
-            controller: controller,
-            children: [
-              if (event.imageUrl != null)
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: Image.network(event.imageUrl!, height: 250, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 250, color: Colors.grey.shade300)),
-                )
-              else
-                Container(
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.network(
+            imageUrl,
+            height: 120,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              height: 120,
+              color: Colors.grey.shade200,
+              child: const Icon(Icons.image),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFF1E293B),
+                    height: 1.2,
                   ),
-                  child: const Icon(Icons.event, size: 80, color: Colors.grey),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    Text(event.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month, color: Color(0xFFFF7A00)),
-                        const SizedBox(width: 8),
-                        Text(event.timeString, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                      ],
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      size: 12,
+                      color: Colors.grey.shade500,
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on, color: Color(0xFF00B4D8)),
-                        const SizedBox(width: 8),
-                        const Text('Gebze Kent Meydanı', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(isEn ? 'Details' : 'Detaylar', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
+                    const SizedBox(width: 4),
                     Text(
-                      isEn ? 'Come and join us for this spectacular event! Bring your friends and family for a great time.' 
-                           : 'Bu harika etkinlikte bize katılın! Aileniz ve arkadaşlarınızla birlikte keyifli vakit geçirmek için sizi bekliyoruz.',
-                      style: TextStyle(fontSize: 15, color: Theme.of(context).textTheme.bodyMedium?.color, height: 1.5),
+                      date,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () => context.pop(),
-                      child: Text(isEn ? 'Join Event' : 'Katıl'),
+                    const Spacer(),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: Colors.grey,
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

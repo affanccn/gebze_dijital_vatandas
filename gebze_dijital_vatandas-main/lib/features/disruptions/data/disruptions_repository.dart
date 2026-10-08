@@ -1,72 +1,60 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/disruption_model.dart';
-import 'package:gebze_dijital_vatandas/core/network/scraper_service.dart';
+import '../../../core/repositories/firestore_repository.dart';
 
-abstract class DisruptionsRepository {
-  Future<List<DisruptionModel>> getActiveDisruptions();
-}
+final _waterOutagesProvider = StreamProvider.autoDispose((ref) {
+  return ref.watch(firestoreRepositoryProvider).watchWaterOutages();
+});
 
-class LiveDisruptionsRepository implements DisruptionsRepository {
-  final ScraperService _scraper;
+final _powerOutagesProvider = StreamProvider.autoDispose((ref) {
+  return ref.watch(firestoreRepositoryProvider).watchPowerOutages();
+});
 
-  LiveDisruptionsRepository(this._scraper);
+final activeDisruptionsProvider = Provider.autoDispose<AsyncValue<List<DisruptionModel>>>((ref) {
+  final waterAsync = ref.watch(_waterOutagesProvider);
+  final powerAsync = ref.watch(_powerOutagesProvider);
 
-  @override
-  Future<List<DisruptionModel>> getActiveDisruptions() async {
-    List<DisruptionModel> allDisruptions = [];
+  if (waterAsync.isLoading || powerAsync.isLoading) {
+    return const AsyncLoading();
+  }
 
-    final waterData = await _scraper.getWaterOutages();
-    for (var i = 0; i < waterData.length; i++) {
-      final item = waterData[i];
+  final List<DisruptionModel> allDisruptions = [];
+
+  final waterDoc = waterAsync.value;
+  if (waterDoc != null && waterDoc['outages'] != null) {
+    final List waterList = waterDoc['outages'];
+    for (int i = 0; i < waterList.length; i++) {
+      final item = waterList[i];
       allDisruptions.add(
         DisruptionModel(
           id: 'water_$i',
-          title: item['title'] ?? 'Su Kesintisi',
-          subtitle: item['location'] ?? 'Gebze',
+          title: 'Su Kesintisi',
+          subtitle: item['neighborhood'] ?? 'Gebze',
           type: 'water',
           startTime: DateTime.now(),
           endTime: DateTime.now().add(const Duration(hours: 4)),
         ),
       );
     }
+  }
 
-    final electData = await _scraper.getElectricityOutages();
-    for (var i = 0; i < electData.length; i++) {
-      final item = electData[i];
+  final powerDoc = powerAsync.value;
+  if (powerDoc != null && powerDoc['outages'] != null) {
+    final List powerList = powerDoc['outages'];
+    for (int i = 0; i < powerList.length; i++) {
+      final item = powerList[i];
       allDisruptions.add(
         DisruptionModel(
           id: 'elect_$i',
-          title: item['title'] ?? 'Elektrik Kesintisi',
-          subtitle: item['location'] ?? 'Gebze',
+          title: 'Elektrik Kesintisi',
+          subtitle: item['neighborhood'] ?? 'Gebze',
           type: 'electricity',
           startTime: DateTime.now(),
           endTime: DateTime.now().add(const Duration(hours: 4)),
         ),
       );
     }
-
-    // Add a mock road disruption since we don't scrape it
-    if (allDisruptions.isEmpty) {
-      allDisruptions.add(
-        DisruptionModel(
-          id: 'mock_road',
-          title: 'Yol Çalışması',
-          subtitle: 'İstasyon Cd. tek şerit kapalı',
-          type: 'road',
-          startTime: DateTime.now(),
-          endTime: DateTime.now().add(const Duration(days: 2)),
-        ),
-      );
-    }
-
-    return allDisruptions;
   }
-}
 
-final disruptionsRepositoryProvider = Provider<DisruptionsRepository>((ref) {
-  return LiveDisruptionsRepository(ScraperService());
-});
-
-final activeDisruptionsProvider = FutureProvider<List<DisruptionModel>>((ref) {
-  return ref.watch(disruptionsRepositoryProvider).getActiveDisruptions();
+  return AsyncData(allDisruptions);
 });

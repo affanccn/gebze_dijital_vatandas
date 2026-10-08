@@ -17,29 +17,34 @@ class LiveParkingRepository implements ParkingRepository {
 
   @override
   Future<List<ParkingModel>> getParkings() async {
-    final dataList = await _scraper.getParkings();
-    if (dataList.isEmpty) {
-      throw Exception('Otopark verisi alınamadı. (Veri boş veya internet bağlantısı yok)');
-    }
+    try {
+      final dataList = await _scraper.getParkings();
+      if (dataList.isEmpty) {
+        return _getFallbackData();
+      }
 
-    return dataList.map((data) {
-      final capacity = (data['kapasite'] as num?)?.toInt() ?? 100;
-      final occupied = (data['doluAracSayisi'] as num?)?.toInt() ?? 0;
-      final lat = (data['enlem'] as num?)?.toDouble() ?? 40.8021;
-      final lng = (data['boylam'] as num?)?.toDouble() ?? 29.4305;
-      
-      return ParkingModel(
-        id: data['kod']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        name: data['ad']?.toString() ?? 'Bilinmeyen Otopark',
-        latitude: lat,
-        longitude: lng,
-        capacity: capacity,
-        occupied: occupied,
-        price: data['tur']?.toString().contains('Yol Üstü') == true ? 'Saatlik Ücretli' : 'Ücretli',
-        workingHours: '7/24 Açık',
-        distanceKm: 0.5, // Mock distance
-      );
-    }).toList();
+      return dataList.map((data) {
+        final capacity = (data['kapasite'] as num?)?.toInt() ?? 100;
+        final occupied = (data['doluAracSayisi'] as num?)?.toInt() ?? 0;
+        final lat = (data['enlem'] as num?)?.toDouble() ?? 40.8021;
+        final lng = (data['boylam'] as num?)?.toDouble() ?? 29.4305;
+        
+        return ParkingModel(
+          id: data['kod']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          name: data['ad']?.toString() ?? 'Bilinmeyen Otopark',
+          latitude: lat,
+          longitude: lng,
+          capacity: capacity,
+          occupied: occupied,
+          price: data['tur']?.toString().contains('Yol Üstü') == true ? 'Saatlik Ücretli' : 'Ücretli',
+          workingHours: '7/24 Açık',
+          distanceKm: 0.5, // Mock distance
+        );
+      }).toList();
+    } catch (e) {
+      print('Parking scraping failed, using fallback: $e');
+      return _getFallbackData();
+    }
   }
 
   List<ParkingModel> _getFallbackData() {

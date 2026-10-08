@@ -9,6 +9,9 @@ class ScraperService {
     BaseOptions(
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     )
   );
 
@@ -158,6 +161,34 @@ class ScraperService {
     } catch (e, st) {
       print('Error parsing news: $e\n$st');
       return [];
+    }
+  }
+
+  Future<String> getNewsDetail(String url) async {
+    try {
+      final response = await _dio.get(url);
+      final doc = parser.parse(response.data);
+      
+      final article = doc.querySelector('article');
+      if (article != null) {
+        final paragraphs = article.querySelectorAll('p');
+        if (paragraphs.isNotEmpty) {
+           return paragraphs.map((p) => p.text.trim()).where((t) => t.isNotEmpty).join('\n\n');
+        }
+        return article.text.trim();
+      }
+      
+      final paragraphs = doc.querySelectorAll('p');
+      if (paragraphs.isNotEmpty) {
+         // Exclude footer/header paragraphs if possible, but taking first few is better
+         final texts = paragraphs.map((p) => p.text.trim()).where((t) => t.isNotEmpty && t.length > 20).toList();
+         return texts.join('\n\n');
+      }
+      
+      return '';
+    } catch (e) {
+      print('Error parsing news detail: $e');
+      return '';
     }
   }
 

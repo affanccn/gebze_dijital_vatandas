@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "991489651979",
+    "project_id": "gebze-dijital-vatandas",
+    "storage_bucket": "gebze-dijital-vatandas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991489651979:android:700b635511ca67966ede0e",
+        "android_client_info": {
+          "package_name": "com.example.gebze_dijital_vatandas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJGxNKD5yTn0mCoea4vV0J3WkwoLhPfu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

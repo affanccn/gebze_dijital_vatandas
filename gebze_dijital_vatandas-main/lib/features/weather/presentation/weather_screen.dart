@@ -16,15 +16,15 @@ class WeatherScreen extends ConsumerWidget {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            weatherAsync.when(
-              data: (weather) {
-                IconData weatherIcon = Icons.cloud;
-                if (weather.iconType == 'sun') weatherIcon = Icons.wb_sunny;
-                if (weather.iconType == 'rain') weatherIcon = Icons.grain;
+        child: weatherAsync.when(
+          data: (weather) {
+            IconData weatherIcon = Icons.cloud;
+            if (weather.iconType == 'sun') weatherIcon = Icons.wb_sunny;
+            if (weather.iconType == 'rain') weatherIcon = Icons.grain;
 
-                return Container(
+            return Column(
+              children: [
+                Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -68,26 +68,7 @@ class WeatherScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                );
-              },
-              loading: () => Container(
-                height: 300,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade700, Colors.blue.shade400],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
-                  ),
                 ),
-                child: const CircularProgressIndicator(color: Colors.white),
-              ),
-              error: (err, stack) => const Text('Hata oluştu'),
-            ),
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -96,39 +77,42 @@ class WeatherScreen extends ConsumerWidget {
                 children: [
                   const Text('Saatlik Tahmin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 120,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 8,
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final hours = ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
-                        final temps = ['18°', '19°', '20°', '20°', '19°', '17°', '15°', '14°'];
-                        final icons = [Icons.cloud, Icons.wb_cloudy, Icons.wb_sunny, Icons.wb_sunny, Icons.wb_cloudy, Icons.cloud, Icons.cloud, Icons.nights_stay];
-                        
-                        return Container(
-                          width: 80,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(hours[index], style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.bodySmall?.color)),
-                              Icon(icons[index], color: Colors.blue.shade400, size: 28),
-                              Text(temps[index], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            ],
-                          ),
-                        );
-                      },
+                    SizedBox(
+                      height: 120,
+                      child: weather.hourly.isEmpty 
+                        ? const Center(child: Text('Saatlik veri bulunamadı'))
+                        : ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: weather.hourly.length,
+                        separatorBuilder: (context, index) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final hour = weather.hourly[index];
+                          IconData hIcon = Icons.cloud;
+                          if (hour.iconType.contains('G')) hIcon = Icons.wb_sunny; // Güneşli
+                          if (hour.iconType.contains('Y') || hour.iconType.contains('S')) hIcon = Icons.water_drop; // Yağışlı/Sağanak
+                          
+                          return Container(
+                            width: 80,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(hour.time, style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.bodySmall?.color)),
+                                Icon(hIcon, color: Colors.blue.shade400, size: 28),
+                                Text('${hour.temperature.toInt()}°', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 32),
                   const Text('5 Günlük Tahmin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   const SizedBox(height: 16),
@@ -140,25 +124,38 @@ class WeatherScreen extends ConsumerWidget {
                         BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        _buildDailyForecast(context, 'Cuma', Icons.wb_sunny, '22°', '14°'),
-                        const Divider(height: 1),
-                        _buildDailyForecast(context, 'Cumartesi', Icons.wb_cloudy, '20°', '13°'),
-                        const Divider(height: 1),
-                        _buildDailyForecast(context, 'Pazar', Icons.water_drop, '16°', '10°'),
-                        const Divider(height: 1),
-                        _buildDailyForecast(context, 'Pazartesi', Icons.cloud, '15°', '9°'),
-                        const Divider(height: 1),
-                        _buildDailyForecast(context, 'Salı', Icons.wb_sunny, '18°', '11°'),
-                      ],
+                    child: weather.daily.isEmpty
+                      ? const Padding(padding: EdgeInsets.all(16), child: Text('Günlük veri bulunamadı'))
+                      : Column(
+                      children: weather.daily.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final day = entry.value;
+                        IconData dIcon = Icons.cloud;
+                        if (day.iconType.contains('G')) dIcon = Icons.wb_sunny;
+                        if (day.iconType.contains('Y') || day.iconType.contains('S')) dIcon = Icons.water_drop;
+
+                        return Column(
+                          children: [
+                            if (index > 0) const Divider(height: 1),
+                            _buildDailyForecast(context, day.day, dIcon, '${day.highTemp.toInt()}°', '${day.lowTemp.toInt()}°'),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
                   const SizedBox(height: 32),
                 ],
               ),
             ),
-          ],
+              ],
+            );
+          },
+          loading: () => Container(
+            height: 300,
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          ),
+          error: (err, stack) => const Center(child: Text('Hata oluştu')),
         ),
       ),
     );
