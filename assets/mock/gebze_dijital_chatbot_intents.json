@@ -1,0 +1,1030 @@
+{
+  "project": "Gebze Dijital",
+  "version": "1.0",
+  "language": "tr-TR",
+  "purpose": "API veya ücretli yapay zeka kullanmadan, yerel intent/keyword eşleştirme ile kullanıcı sorularını uygulama içindeki sayfalara veya kontrollü hazır cevaplara yönlendirmek.",
+  "matching": {
+    "strategy": "hybrid_local_intent",
+    "normalization": [
+      "lowercase",
+      "turkish_character_normalization",
+      "punctuation_removal",
+      "whitespace_normalization",
+      "phrase_matching",
+      "keyword_matching",
+      "basic_turkish_suffix_variation"
+    ],
+    "weights": {
+      "exact_phrase": 5,
+      "keyword": 2,
+      "multiple_keyword_bonus": 1,
+      "strong_topic_match": 3
+    },
+    "confidence_policy": {
+      "high": "direct_action",
+      "medium": "ask_confirmation_or_show_choices",
+      "low": "unknown"
+    }
+  },
+  "intents": [
+    {
+      "id": "greeting",
+      "category": "general",
+      "action": "answer",
+      "keywords": [
+        "merhaba",
+        "selam",
+        "selamlar",
+        "hey",
+        "naber",
+        "nasılsın",
+        "asistan"
+      ],
+      "phrases": [
+        "merhaba",
+        "selam",
+        "merhaba asistan",
+        "selam asistan",
+        "nasılsın"
+      ],
+      "response": "Merhaba 👋 Ben Gebze Dijital Asistanı. Gebze'deki belediye hizmetleri ve şehir bilgileri konusunda yardımcı olabilirim.",
+      "priority": 1
+    },
+    {
+      "id": "help",
+      "category": "general",
+      "action": "answer",
+      "keywords": [
+        "yardım",
+        "yardımcı",
+        "yapabiliyorsun",
+        "biliyorsun",
+        "sorabilirim"
+      ],
+      "phrases": [
+        "ne yapabiliyorsun",
+        "bana nasıl yardımcı olabilirsin",
+        "hangi konularda yardımcı olabilirsin",
+        "sana ne sorabilirim",
+        "yardım eder misin"
+      ],
+      "response": "Belediye hizmetleri, su ve elektrik kesintileri, nöbetçi eczaneler, etkinlikler, haberler, hava durumu, ulaşım, gezilecek yerler, parklar, spor tesisleri, sosyal tesisler ve talep/şikayet işlemleri konusunda yardımcı olabilirim.",
+      "priority": 1
+    },
+    {
+      "id": "general_information",
+      "category": "gebze",
+      "action": "navigate_or_answer",
+      "keywords": [
+        "gebze",
+        "ilçe",
+        "şehir",
+        "tanıtım",
+        "keşfet",
+        "meşhur"
+      ],
+      "phrases": [
+        "gebze hakkında bilgi",
+        "gebze'yi anlat",
+        "gebze nasıl bir yer",
+        "gebze'de neler var",
+        "gebze'nin özellikleri neler",
+        "gebze'nin neyi meşhur"
+      ],
+      "route_key": "home_or_discover",
+      "response": "Gebze hakkında bilgi, önemli yerler, tarih, sanayi, teknoloji ve şehir yaşamı içeriklerine ulaşabilirsiniz.",
+      "priority": 1
+    },
+    {
+      "id": "industry_technology",
+      "category": "gebze",
+      "action": "navigate_or_answer",
+      "keywords": [
+        "sanayi",
+        "fabrika",
+        "osb",
+        "organize",
+        "teknoloji",
+        "bilişim",
+        "üretim",
+        "ekonomi",
+        "TOGG"
+      ],
+      "phrases": [
+        "gebze'de hangi sanayi bölgeleri var",
+        "gebze'nin sanayisi nasıl",
+        "gebze'de hangi osb'ler var",
+        "bilişim vadisi nerede",
+        "bilişim vadisi nedir",
+        "gebze'de teknoloji şirketleri",
+        "gebze'nin ekonomisi"
+      ],
+      "route_key": "industry_technology",
+      "response": "Gebze'nin sanayi ve teknoloji yapısı hakkında bilgi alabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "water_outage",
+      "category": "city_services",
+      "action": "navigate",
+      "keywords": [
+        "su",
+        "sular",
+        "suyum",
+        "susuz",
+        "musluk",
+        "kesinti",
+        "kesildi",
+        "kesilmiş",
+        "gelmiyor"
+      ],
+      "phrases": [
+        "suyum kesildi",
+        "sular kesildi",
+        "su kesintisi var mı",
+        "gebze'de su kesintisi var mı",
+        "bugün su kesintisi var mı",
+        "sular ne zaman gelecek",
+        "su ne zaman gelecek",
+        "gebze'de sular ne zaman gelecek",
+        "suyum neden yok",
+        "musluktan su gelmiyor",
+        "su yok",
+        "gebze su kesintileri",
+        "su kesintileri nerede",
+        "hangi mahallelerde su kesik",
+        "hangi bölgelerde su kesintisi var"
+      ],
+      "route_key": "water_outages",
+      "data_source": "ISU",
+      "response": "Bölgenizdeki güncel su kesintilerini buradan kontrol edebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "water_problem",
+      "category": "city_services",
+      "action": "ask",
+      "keywords": [
+        "su",
+        "arıza",
+        "problem",
+        "sorun",
+        "basınç",
+        "kaçak"
+      ],
+      "phrases": [
+        "su problemi",
+        "suyla ilgili sorun",
+        "su arızası",
+        "su kaçağı",
+        "suyumla ilgili sorun"
+      ],
+      "choices": [
+        {
+          "label": "Su Kesintilerini Gör",
+          "intent": "water_outage"
+        },
+        {
+          "label": "Su Problemi Bildir",
+          "intent": "request"
+        }
+      ],
+      "response": "Su kesintisi mi yaşıyorsunuz, yoksa suyla ilgili başka bir problem mi bildirmek istiyorsunuz?",
+      "priority": 5
+    },
+    {
+      "id": "power_outage",
+      "category": "city_services",
+      "action": "navigate",
+      "keywords": [
+        "elektrik",
+        "elektrikler",
+        "enerji",
+        "sedas",
+        "kesinti",
+        "gelmiyor"
+      ],
+      "phrases": [
+        "elektrikler kesildi",
+        "elektrik kesintisi var mı",
+        "gebze'de elektrik kesintisi",
+        "elektrikler ne zaman gelecek",
+        "elektrik ne zaman gelecek",
+        "bugün elektrik kesintisi var mı",
+        "gebze elektrik kesintileri",
+        "elektrik kesintisi nerede",
+        "planlı elektrik kesintisi",
+        "elektrik çalışması"
+      ],
+      "route_key": "power_outages",
+      "data_source": "SEDAŞ",
+      "response": "Bölgenizdeki güncel elektrik kesintilerini buradan kontrol edebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "pharmacy",
+      "category": "city_services",
+      "action": "navigate",
+      "keywords": [
+        "eczane",
+        "eczacı",
+        "ilaç",
+        "nöbet",
+        "nöbetçi",
+        "açık",
+        "gece"
+      ],
+      "phrases": [
+        "nöbetçi eczane nerede",
+        "bugün hangi eczane nöbetçi",
+        "gebze nöbetçi eczane",
+        "gebze'de nöbetçi eczaneler",
+        "en yakın nöbetçi eczane",
+        "bu gece hangi eczane açık",
+        "açık eczane",
+        "nöbetçi eczane",
+        "eczane nerede",
+        "bugün eczaneler hangileri"
+      ],
+      "route_key": "pharmacies",
+      "data_source": "local_pharmacy_source",
+      "response": "Gebze'deki güncel nöbetçi eczaneleri buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "weather",
+      "category": "city_services",
+      "action": "navigate",
+      "keywords": [
+        "hava",
+        "hava durumu",
+        "sıcaklık",
+        "derece",
+        "yağmur",
+        "kar",
+        "rüzgar",
+        "fırtına",
+        "sıcak",
+        "soğuk"
+      ],
+      "phrases": [
+        "bugün hava nasıl",
+        "gebze'de hava nasıl",
+        "gebze hava durumu",
+        "yarın hava nasıl",
+        "yarın gebze'de hava nasıl",
+        "hafta sonu hava nasıl",
+        "yağmur yağacak mı",
+        "bugün yağmur var mı",
+        "sıcaklık kaç derece",
+        "hava kaç derece",
+        "hava sıcak mı",
+        "hava soğuk mu",
+        "rüzgar var mı"
+      ],
+      "route_key": "weather",
+      "data_source": "weather_service",
+      "status": "activate_when_integration_is_available",
+      "response": "Gebze'nin güncel hava durumunu buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "news",
+      "category": "city_information",
+      "action": "navigate",
+      "keywords": [
+        "haber",
+        "haberler",
+        "gündem",
+        "son dakika",
+        "yerel"
+      ],
+      "phrases": [
+        "gebze haberleri",
+        "bugün gebze'de ne oldu",
+        "gebze'de son haberler",
+        "son gebze haberleri",
+        "gebze'den haberler",
+        "gebze gündem",
+        "gebze'de gündem ne",
+        "yerel haberler",
+        "gebze son dakika",
+        "gebze'de son dakika ne var"
+      ],
+      "route_key": "news",
+      "data_source": "gebze_news_rss",
+      "response": "Gebze'deki güncel haberleri buradan takip edebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "events",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "etkinlik",
+        "konser",
+        "festival",
+        "tiyatro",
+        "sergi",
+        "program",
+        "hafta sonu"
+      ],
+      "phrases": [
+        "bugün gebze'de etkinlik var mı",
+        "gebze etkinlikleri",
+        "gebze'de bugün ne var",
+        "bu hafta gebze'de ne var",
+        "gebze'de konser var mı",
+        "gebze konserleri",
+        "gebze festivalleri",
+        "gebze tiyatro",
+        "gebze'de tiyatro var mı",
+        "gebze'de sergi var mı",
+        "çocuk etkinlikleri",
+        "hafta sonu etkinlikleri",
+        "gebze'de hafta sonu ne yapılır"
+      ],
+      "route_key": "events",
+      "response": "Gebze'deki güncel etkinlikleri buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "places",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "gez",
+        "gezi",
+        "gezilecek",
+        "görülecek",
+        "turistik",
+        "mekan",
+        "yer"
+      ],
+      "phrases": [
+        "gebze'de nereleri gezebilirim",
+        "gebze'de gezilecek yerler",
+        "gebze'de görülecek yerler",
+        "gebze'de tarihi yerler",
+        "gebze'de turistik yerler",
+        "gebze'de nereye gidebilirim",
+        "gebze'de gezilecek nereler var",
+        "gebze'de arkadaşlarla nereye gidilir",
+        "gebze'de ailecek nereye gidilir"
+      ],
+      "route_key": "places",
+      "response": "Gebze'deki gezilecek ve görülecek yerleri buradan keşfedebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "parks",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "park",
+        "çocuk",
+        "çocuk parkı",
+        "yeşil",
+        "yeşil alan",
+        "piknik",
+        "oyun alanı",
+        "doğa"
+      ],
+      "phrases": [
+        "gebze'de parklar",
+        "gebze parkları",
+        "yakınımdaki park",
+        "çocuk parkı",
+        "gebze'de çocuk parkları",
+        "yeşil alan",
+        "gebze'de yeşil alan",
+        "piknik yapılacak yer",
+        "gebze'de piknik"
+      ],
+      "route_key": "parks",
+      "response": "Gebze'deki parkları ve yeşil alanları buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "historical_places",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "tarihi",
+        "tarih",
+        "antik",
+        "külliye",
+        "kale",
+        "mezar"
+      ],
+      "phrases": [
+        "gebze'de tarihi yerler",
+        "gebze'nin tarihi yerleri",
+        "tarihi yerleri göster",
+        "gebze'de tarihi mekanlar",
+        "gebze tarihi"
+      ],
+      "route_key": "historical_places",
+      "response": "Gebze'nin tarihi yerlerini buradan keşfedebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "mosques",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "cami",
+        "camii",
+        "mescit",
+        "ibadet"
+      ],
+      "phrases": [
+        "gebze'deki camiler",
+        "gebze camileri",
+        "tarihi camiler",
+        "yakındaki cami",
+        "cami nerede",
+        "camileri göster"
+      ],
+      "route_key": "mosques",
+      "response": "Gebze'deki camileri buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "museums",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "müze",
+        "müzeler",
+        "museum",
+        "osman hamdi"
+      ],
+      "phrases": [
+        "gebze'de müze var mı",
+        "gebze müzeleri",
+        "müzeler nerede",
+        "gebze'deki müzeler",
+        "müze gezmek istiyorum",
+        "osman hamdi bey müzesi"
+      ],
+      "route_key": "museums",
+      "response": "Gebze'deki müzeleri buradan keşfedebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "sports_facilities",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "spor",
+        "spor tesisi",
+        "salon",
+        "saha",
+        "futbol",
+        "basketbol",
+        "yüzme",
+        "havuz"
+      ],
+      "phrases": [
+        "gebze'de spor tesisleri",
+        "spor tesisi nerede",
+        "spor yapacak yer",
+        "gebze'de spor",
+        "spor salonları",
+        "futbol sahası",
+        "basketbol sahası",
+        "yüzme havuzu"
+      ],
+      "route_key": "sports_facilities",
+      "response": "Gebze'deki spor tesislerini buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "social_facilities",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "sosyal",
+        "tesis",
+        "sosyal tesis",
+        "belediye tesisi",
+        "aile",
+        "çay",
+        "dinlenme"
+      ],
+      "phrases": [
+        "gebze'de sosyal tesisler",
+        "sosyal tesis nerede",
+        "belediyenin sosyal tesisleri",
+        "ailecek gidilecek yer",
+        "oturup çay içilecek yer",
+        "gebze'de belediye tesisi"
+      ],
+      "route_key": "social_facilities",
+      "response": "Gebze'deki sosyal tesisleri buradan görebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "roadworks",
+      "category": "city_services",
+      "action": "navigate",
+      "keywords": [
+        "yol",
+        "yol çalışması",
+        "çalışma",
+        "kazı",
+        "yol kapalı",
+        "kapalı yol",
+        "trafik",
+        "asfalt",
+        "altyapı"
+      ],
+      "phrases": [
+        "gebze'de yol çalışması var mı",
+        "hangi yollar kapalı",
+        "yol çalışmaları nerede",
+        "gebze yol çalışmaları",
+        "yol kapalı mı",
+        "yol neden kapalı",
+        "kazı çalışması var mı",
+        "gebze'de kazı var mı",
+        "yol çalışması",
+        "trafik nedeniyle kapalı yollar"
+      ],
+      "route_key": "roadworks",
+      "status": "activate_when_data_integration_is_available",
+      "response": "Gebze'deki yol ve çalışma bilgilerini buradan kontrol edebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "waste_collection",
+      "category": "city_services",
+      "action": "navigate_or_request",
+      "keywords": [
+        "çöp",
+        "çöpler",
+        "çöp kutusu",
+        "konteyner",
+        "temizlik",
+        "çöp toplama",
+        "atık"
+      ],
+      "phrases": [
+        "çöpümü almadılar",
+        "çöp alınmadı",
+        "çöp toplama",
+        "çöp toplama saatleri",
+        "çöpler ne zaman toplanıyor",
+        "çöp konteyneri dolu",
+        "çöp kutusu dolu",
+        "sokakta çöp var",
+        "çevre temizliği",
+        "temizlik talebi"
+      ],
+      "route_key": "request_create",
+      "response": "Çöp ve temizlik sorunları için buradan talep oluşturabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "complaint",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "şikayet",
+        "şikâyet",
+        "sorun",
+        "problem",
+        "rahatsızlık",
+        "bildirmek"
+      ],
+      "phrases": [
+        "şikayet oluşturmak istiyorum",
+        "belediyeye şikayet",
+        "şikayet nasıl oluşturulur",
+        "bir sorun bildirmek istiyorum",
+        "belediyeye şikayet göndermek",
+        "sorun bildirmek",
+        "şikayetim var"
+      ],
+      "route_key": "complaints",
+      "response": "Belediyeye şikayetinizi buradan iletebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "request",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "talep",
+        "istek",
+        "bildirim",
+        "başvuru",
+        "hizmet talebi"
+      ],
+      "phrases": [
+        "belediyeye talep göndermek istiyorum",
+        "talep oluştur",
+        "talep nasıl oluşturulur",
+        "belediyeden yardım istiyorum",
+        "bir hizmet talep etmek istiyorum",
+        "istek göndermek istiyorum",
+        "belediyeye bildirim yapmak istiyorum"
+      ],
+      "route_key": "request_create",
+      "response": "Belediyeye hizmet talebinizi buradan iletebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "property_tax",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "vergi",
+        "emlak",
+        "emlak vergisi",
+        "borç",
+        "ödeme",
+        "vergi borcu"
+      ],
+      "phrases": [
+        "emlak vergisi nereden ödenir",
+        "emlak vergisi",
+        "emlak vergisi ödeme",
+        "vergi borcum",
+        "vergi borcu sorgulama",
+        "belediye vergi borcu",
+        "emlak vergisi borcu",
+        "vergimi nasıl öderim"
+      ],
+      "route_key": "property_tax",
+      "response": "Emlak vergisi ve ilgili işlemlere buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "debt_payment",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "borç",
+        "borcum",
+        "ödeme",
+        "öde",
+        "online ödeme",
+        "tahsilat"
+      ],
+      "phrases": [
+        "belediyeye borcum var mı",
+        "borç sorgulama",
+        "borçlarımı görmek istiyorum",
+        "borç nasıl ödenir",
+        "ödeme yapmak istiyorum",
+        "belediye ödemesi",
+        "online ödeme"
+      ],
+      "route_key": "payments",
+      "response": "Belediyeye ait borç ve ödeme işlemlerinize buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "municipal_services",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "belediye",
+        "hizmet",
+        "işlem",
+        "online",
+        "e-belediye"
+      ],
+      "phrases": [
+        "belediye hizmetleri",
+        "hangi hizmetler var",
+        "belediyeden hangi işlemleri yapabilirim",
+        "online belediye işlemleri",
+        "belediye işlemleri",
+        "belediye hizmetlerine ulaşmak istiyorum"
+      ],
+      "route_key": "municipal_services",
+      "response": "Gebze Belediyesi hizmetlerine buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "contact",
+      "category": "municipal",
+      "action": "navigate",
+      "keywords": [
+        "telefon",
+        "numara",
+        "adres",
+        "iletişim",
+        "ulaş",
+        "çalışma saatleri"
+      ],
+      "phrases": [
+        "belediyenin telefonu",
+        "belediyenin telefon numarası",
+        "gebze belediyesi telefon",
+        "belediyeye nasıl ulaşırım",
+        "belediyenin adresi",
+        "belediye nerede",
+        "belediye iletişim",
+        "iletişim bilgileri",
+        "belediye çalışma saatleri"
+      ],
+      "route_key": "contact",
+      "response": "Gebze Belediyesi iletişim bilgilerine buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "transportation",
+      "category": "transportation",
+      "action": "navigate_or_answer",
+      "keywords": [
+        "ulaşım",
+        "marmaray",
+        "tren",
+        "toplu taşıma",
+        "istanbul",
+        "istasyon"
+      ],
+      "phrases": [
+        "gebze'den istanbul'a nasıl giderim",
+        "gebze'den istanbul'a ulaşım",
+        "gebze marmaray",
+        "marmaray nereden geçiyor",
+        "gebze marmaray istasyonu",
+        "gebze'den istanbul'a marmaray ile nasıl gidilir",
+        "gebze ulaşım",
+        "gebze'de toplu taşıma"
+      ],
+      "route_key": "transportation",
+      "response": "Gebze'deki ulaşım seçeneklerine buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "eskihisar",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "eskihisar",
+        "sahil",
+        "kale"
+      ],
+      "phrases": [
+        "eskihisar nerede",
+        "eskihisar'da ne var",
+        "eskihisar gezilecek yerler",
+        "eskihisar sahili nerede",
+        "eskihisar kalesi nerede",
+        "eskihisar sahilinde ne yapılır",
+        "gebze eskihisar",
+        "eskihisar'a nasıl gidilir"
+      ],
+      "route_key": "eskihisar",
+      "response": "Eskihisar'ın sahil, kale ve gezilecek yerlerini buradan keşfedebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "ballikayalar",
+      "category": "discovery",
+      "action": "navigate",
+      "keywords": [
+        "ballıkayalar",
+        "tabiat",
+        "doğa",
+        "yürüyüş",
+        "piknik",
+        "kanyon"
+      ],
+      "phrases": [
+        "ballıkayalar nerede",
+        "ballıkayalar'a nasıl gidilir",
+        "ballıkayalar hakkında bilgi",
+        "ballıkayalar tabiat parkı",
+        "ballıkayalar'da ne yapılır",
+        "ballıkayalar gezilir mi",
+        "ballıkayalar yürüyüş",
+        "ballıkayalar piknik",
+        "gebze'de tabiat parkı",
+        "gebze'de doğa"
+      ],
+      "route_key": "ballikayalar",
+      "response": "Ballıkayalar Tabiat Parkı hakkında bilgiye buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "osman_hamdi_bey",
+      "category": "history",
+      "action": "navigate",
+      "keywords": [
+        "osman hamdi",
+        "müze",
+        "ev",
+        "ressam",
+        "eskihisar"
+      ],
+      "phrases": [
+        "osman hamdi bey kimdir",
+        "osman hamdi bey evi nerede",
+        "osman hamdi bey müzesi nerede",
+        "gebze osman hamdi bey",
+        "osman hamdi bey hakkında bilgi",
+        "eskihisar müzesi"
+      ],
+      "route_key": "osman_hamdi_bey",
+      "response": "Osman Hamdi Bey Evi ve Müzesi hakkında bilgiye buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "coban_mustafa_pasa",
+      "category": "history",
+      "action": "navigate",
+      "keywords": [
+        "mustafa paşa",
+        "çoban mustafa paşa",
+        "külliye",
+        "cami",
+        "camii"
+      ],
+      "phrases": [
+        "çoban mustafa paşa camii nerede",
+        "mustafa paşa camii nerede",
+        "çoban mustafa paşa külliyesi nerede",
+        "mustafa paşa külliyesi",
+        "gebze'deki tarihi camiler",
+        "gebze'nin tarihi camisi"
+      ],
+      "route_key": "coban_mustafa_pasa",
+      "response": "Çoban Mustafa Paşa Külliyesi hakkında bilgiye buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "hannibal_tomb",
+      "category": "history",
+      "action": "navigate",
+      "keywords": [
+        "hannibal",
+        "mezar",
+        "tarihi"
+      ],
+      "phrases": [
+        "hannibal mezarı nerede",
+        "hannibal kimdir",
+        "gebze hannibal",
+        "hannibal'ın mezarı",
+        "gebze'de tarihi yerler",
+        "hannibal hakkında bilgi"
+      ],
+      "route_key": "hannibal",
+      "response": "Hannibal Mezarı hakkında bilgiye buradan ulaşabilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "discover",
+      "category": "discovery",
+      "action": "suggest",
+      "keywords": [
+        "ne yapabilirim",
+        "nereye",
+        "aktivite",
+        "hafta sonu",
+        "arkadaş",
+        "aile",
+        "sıkılıyorum"
+      ],
+      "phrases": [
+        "gebze'de ne yapabilirim",
+        "bugün ne yapabilirim",
+        "hafta sonu ne yapabilirim",
+        "gebze'de nereye gidebilirim",
+        "gebze'de arkadaşlarla ne yapılır",
+        "ailemle nereye gidebilirim",
+        "gebze'de gezmek istiyorum",
+        "canım sıkılıyor gebze'de ne yapabilirim",
+        "gebze'de aktivite"
+      ],
+      "choices": [
+        {
+          "label": "Etkinlikler",
+          "intent": "events"
+        },
+        {
+          "label": "Gezilecek Yerler",
+          "intent": "places"
+        },
+        {
+          "label": "Parklar",
+          "intent": "parks"
+        },
+        {
+          "label": "Tarihi Yerler",
+          "intent": "historical_places"
+        },
+        {
+          "label": "Spor Tesisleri",
+          "intent": "sports_facilities"
+        },
+        {
+          "label": "Sosyal Tesisler",
+          "intent": "social_facilities"
+        }
+      ],
+      "response": "Gebze'de keşfedebileceğiniz birçok seçenek var. Aşağıdan birini seçebilirsiniz.",
+      "priority": 5
+    },
+    {
+      "id": "unknown",
+      "category": "general",
+      "action": "answer",
+      "keywords": [],
+      "phrases": [],
+      "response": "Ben Gebze Dijital için geliştirilmiş bir vatandaş asistanıyım. Belediye hizmetleri ve Gebze ile ilgili konularda yardımcı olabilirim.",
+      "priority": 1
+    },
+    {
+      "id": "easter_egg_82",
+      "priority": 10,
+      "keywords": [
+        "82",
+        "il olacak",
+        "plaka 82"
+      ],
+      "phrases": [
+        "gebze ne zaman il olacak",
+        "ne zaman il olacağız",
+        "gebze 82"
+      ],
+      "responses": [
+        "Biz zaten gönüllerin 82'siyiz! 😎🎉 İnşallah en yakın zamanda resmiyet kazanırız!",
+        "82 numara bana da çok yakıştı bence! 😉 Yakında inşallah diyelim, konfetiler benden! 🎉"
+      ]
+    }
+  ],
+  "special_disambiguation": [
+    {
+      "input_pattern": [
+        "hafta sonu",
+        "ne yapabilirim",
+        "nereye gidebilirim"
+      ],
+      "prefer": "discover",
+      "reason": "Birden fazla discovery intenti ile çakışabilir."
+    },
+    {
+      "input_pattern": [
+        "su",
+        "problem",
+        "sorun",
+        "arıza"
+      ],
+      "prefer": "water_problem",
+      "reason": "Su kesintisi ile genel su problemi ayrıştırılmalı."
+    },
+    {
+      "input_pattern": [
+        "elektrik",
+        "sorun",
+        "problem",
+        "arıza"
+      ],
+      "prefer": "power_outage",
+      "reason": "Güncel elektrik kesintisi sayfasına yönlendirme öncelikli; farklı arıza akışı varsa kullanıcıya seçenek sun."
+    }
+  ],
+  "route_registry": {
+    "water_outages": "/services/disruptions",
+    "power_outages": "/services/disruptions",
+    "pharmacies": "/services/pharmacies",
+    "weather": "/services/weather",
+    "news": "/services/content",
+    "events": "/services/content",
+    "places": "/places",
+    "parks": "/places",
+    "historical_places": "/places",
+    "mosques": "/places",
+    "museums": "/places",
+    "sports_facilities": "/places",
+    "social_facilities": "/places",
+    "roadworks": "/services/disruptions",
+    "request_create": "/report",
+    "complaints": "/report",
+    "property_tax": "/services",
+    "payments": "/services",
+    "municipal_services": "/services",
+    "contact": "/services",
+    "transportation": "/services/neighborhood",
+    "eskihisar": "/places",
+    "ballikayalar": "/places",
+    "osman_hamdi_bey": "/places",
+    "coban_mustafa_pasa": "/places",
+    "hannibal": "/places"
+  },
+  "implementation_notes": [
+    "Bu JSON'daki route_key değerleri doğrudan route olarak kullanılmamalı; mevcut Flutter route registry ile eşleştirilmeli.",
+    "Aktif olmayan entegrasyonlar için chatbot veri varmış gibi cevap üretmemeli.",
+    "Güncel bilgi gerektiren sorular mevcut servislerden alınmalı.",
+    "Yerel intent motoru internet ve AI API olmadan çalışabilmeli.",
+    "Yeni intent eklemek için engine kodunu değiştirmek yerine config'e kayıt eklenebilmesi hedeflenmeli."
+  ]
+}
