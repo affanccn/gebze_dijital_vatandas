@@ -1,120 +1,184 @@
 import 'package:flutter/material.dart';
+import 'package:gebze_dijital_vatandas/core/utils/launcher_utils.dart';
+import 'package:gebze_dijital_vatandas/features/animals/presentation/widgets/ambulance_card.dart';
+import 'package:gebze_dijital_vatandas/features/animals/presentation/widgets/rehabilitation_center_card.dart';
+import 'package:gebze_dijital_vatandas/features/animals/presentation/widgets/adoption_section.dart';
+import 'package:gebze_dijital_vatandas/features/animals/presentation/widgets/feeding_and_clinics_section.dart';
 
-class AnimalsScreen extends StatelessWidget {
+class AnimalsScreen extends StatefulWidget {
   const AnimalsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gebze Pati', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.brown.shade600,
-        foregroundColor: Colors.white,
+  State<AnimalsScreen> createState() => _AnimalsScreenState();
+}
+
+class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _showQuickEmergencyDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              color: Theme.of(context).cardColor,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Column(
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Icon(Icons.pets, size: 64, color: Colors.brown.shade300),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Sokaktaki can dostlarımız için buradayız.',
-                    style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('İşlem başarıyla gerçekleştirildi.'))),
-                    icon: const Icon(Icons.add_alert),
-                    label: const Text('Acil Bildirim Yap'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown.shade600,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.1,
-                children: [
-                  _buildPatiCard(context, Icons.favorite, 'Sahiplendirme', Colors.pink),
-                  _buildPatiCard(context, Icons.search, 'Kayıp & Bulunan', Colors.blue),
-                  _buildPatiCard(context, Icons.local_hospital, 'Veterinerler', Colors.green),
-                  _buildPatiCard(context, Icons.restaurant, 'Mama Noktaları', Colors.orange),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Yakındaki Mama ve Su Noktaları', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 12),
                   Container(
-                    height: 200,
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade300.withValues(alpha: 0.2)),
+                      color: Colors.red.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.map, size: 48, color: Colors.grey.shade400),
-                          const SizedBox(height: 8),
-                          const Text('Harita görünümü için tıklayın', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    ),
+                    child: const Icon(Icons.emergency, color: Colors.red, size: 28),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Acil Hayvan Müdahale Hatları',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const CircleAvatar(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  child: Icon(Icons.phone),
+                ),
+                title: const Text('Hayvan Ambulansı & Rehabilitasyon', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('(0262) 642 04 30 • 7/24 Sokak Hayvanı Acil Sevk'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  LauncherUtils.callPhone('02626420430');
+                },
+              ),
+              const Divider(),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.amber.shade800,
+                  foregroundColor: Colors.white,
+                  child: const Icon(Icons.support_agent),
+                ),
+                title: const Text('Gebze Belediyesi Çağrı Merkezi', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('444 50 41 / 153 • Genel Belediye ve İhbar Hattı'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  LauncherUtils.callPhone('4445041');
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPatiCard(BuildContext context, IconData icon, String title, Color color) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: InkWell(
-        onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('İşlem başarıyla gerçekleştirildi.'))),
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(icon, size: 32, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Icon(Icons.pets, size: 22),
+            SizedBox(width: 8),
+            Text('Gebze Pati', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
+        ),
+        backgroundColor: isDark ? theme.appBarTheme.backgroundColor : Colors.brown.shade700,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.emergency_outlined),
+            tooltip: 'Acil Hatlar',
+            onPressed: _showQuickEmergencyDialog,
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.amberAccent,
+          indicatorWeight: 3,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.emergency_share, size: 20),
+              text: 'Ambulans & Merkez',
+            ),
+            Tab(
+              icon: Icon(Icons.favorite, size: 20),
+              text: 'Sahiplendirme',
+            ),
+            Tab(
+              icon: Icon(Icons.restaurant, size: 20),
+              text: 'Mama & Klinikler',
+            ),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Sekme 1: Ambulans & Rehabilitasyon Merkezi
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AmbulanceCard(
+                  onNavigateToClinics: () {
+                    _tabController.animateTo(2);
+                  },
+                ),
+                const SizedBox(height: 8),
+                const RehabilitationCenterCard(),
+              ],
+            ),
+          ),
+
+          // Sekme 2: Sahiplendirme
+          const AdoptionSection(),
+
+          // Sekme 3: Mama Odakları & Özel Klinikler
+          const FeedingAndClinicsSection(),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showQuickEmergencyDialog,
+        backgroundColor: Colors.red.shade700,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.emergency),
+        label: const Text(
+          'Acil İhbar / Çağrı',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +12,7 @@ import 'package:gebze_dijital_vatandas/features/neighborhood/presentation/neighb
 import 'package:gebze_dijital_vatandas/features/parking/presentation/parking_screen.dart';
 import 'package:gebze_dijital_vatandas/features/disruptions/presentation/disruptions_screen.dart';
 import 'package:gebze_dijital_vatandas/features/participation/presentation/participation_screen.dart';
-import 'package:gebze_dijital_vatandas/features/animals/presentation/animals_screen.dart';
+import 'package:gebze_dijital_vatandas/features/animals/animals.dart';
 import 'package:gebze_dijital_vatandas/features/emergency/presentation/emergency_screen.dart';
 import 'package:gebze_dijital_vatandas/features/weather/presentation/weather_screen.dart';
 import 'package:gebze_dijital_vatandas/features/pharmacies/presentation/pharmacies_screen.dart';
